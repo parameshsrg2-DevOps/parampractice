@@ -77,12 +77,10 @@ do
                     "Value": "'$IP'"
                 }
                 ]
-            }
-            }
+            }  
         ]
-    }
+    }    
     '
-
-    echo "record updated for $instance"
+     echo "record updated for $instance"
 
 done
