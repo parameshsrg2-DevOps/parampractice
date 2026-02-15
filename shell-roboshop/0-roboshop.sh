@@ -23,7 +23,7 @@ do
             --query 'Reservations[].Instances[].PublicIpAddress' \
             --output text
         )
-        RECORD_NAME="$instance.$DOMAIN_NAME" # farm2home.shop
+        RECORD_NAME="$DOMAIN_NAME" # farm2home.shop
     else
         IP=$(
             aws ec2 describe-instances \
@@ -32,9 +32,9 @@ do
             --output text
         )
         RECORD_NAME="$instance.$DOMAIN_NAME" # mongodb.farm2home.shop
-
     fi
-    echo "IP Address:$IP"
+
+    echo "IP Address: $IP"
 
     aws route53 change-resource-record-sets \
     --hosted-zone-id $ZONE_ID \
