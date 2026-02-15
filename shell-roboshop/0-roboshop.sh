@@ -9,12 +9,12 @@ INSTANCE_TYPE="t3.micro"
 for instance in $@
 do
    echo "Launching EC2 instance..."
-    INSTANCE_ID=$(aws ec2 run-instances \
+    INSTANCE_ID=$( aws ec2 run-instances \
     --image-id $AMI_ID \
     --instance-type $INSTANCE_TYPE \
     --security-group-ids $SG_ID \
     --query 'Instances[0].InstanceId' \
-    --output text)
+    --output text )
 
   echo "Instance ID: $INSTANCE_ID"
 
