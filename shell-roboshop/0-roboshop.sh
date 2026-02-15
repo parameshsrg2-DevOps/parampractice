@@ -2,8 +2,8 @@
 
 SG_ID="sg-0f57b313ae45eaff0" # replace with your ID
 AMI_ID="ami-0220d79f3f480ecf5"
-ZONE_ID=""
-DOMAIN_NAME=""
+ZONE_ID="Z05005173GDIZPB1JV6KA"
+DOMAIN_NAME="farm2home.shop"
 
 for instance in $@
 do
@@ -22,7 +22,7 @@ do
             --query 'Reservations[].Instances[].PublicIpAddress' \
             --output text
         )
-        RECORD_NAME="$DOMAIN_NAME" # daws88s.online
+        RECORD_NAME="$DOMAIN_NAME" # farm2home.shop
     else
         IP=$(
             aws ec2 describe-instances \
@@ -30,7 +30,7 @@ do
             --query 'Reservations[].Instances[].PrivateIpAddress' \
             --output text
         )
-        RECORD_NAME="$instance.$DOMAIN_NAME" # mongodb.daws88s.online
+        RECORD_NAME="$instance.$DOMAIN_NAME" # mongodb.farm2home.shop
     fi
 
     echo "IP Address: $IP"
