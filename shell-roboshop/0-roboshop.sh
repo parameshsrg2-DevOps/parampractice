@@ -1,21 +1,63 @@
 #!/bin/bash
 
+SG_ID="sg-0f57b313ae45eaff0" # replace with your ID
 AMI_ID="ami-0220d79f3f480ecf5"
-SG_ID="sg-0f57b313ae45eaff0"
-INSTANCE_TYPE="t3.micro"
-#ZONE_ID="Z05005173GDIZPB1JV6KA"
-#DOMAIN_NAME="farm2home.shop"
+ZONE_ID=""
+DOMAIN_NAME=""
 
 for instance in $@
 do
-   echo "Launching EC2 instance..."
     INSTANCE_ID=$( aws ec2 run-instances \
     --image-id $AMI_ID \
-    --instance-type $INSTANCE_TYPE \
+    --instance-type "t3.micro" \
     --security-group-ids $SG_ID \
+    --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=$instance}]" \
     --query 'Instances[0].InstanceId' \
     --output text )
 
-  echo "Instance ID: $INSTANCE_ID"
+    if [ $instance == "frontend" ]; then
+        IP=$(
+            aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[].Instances[].PublicIpAddress' \
+            --output text
+        )
+        RECORD_NAME="$DOMAIN_NAME" # daws88s.online
+    else
+        IP=$(
+            aws ec2 describe-instances \
+            --instance-ids $INSTANCE_ID \
+            --query 'Reservations[].Instances[].PrivateIpAddress' \
+            --output text
+        )
+        RECORD_NAME="$instance.$DOMAIN_NAME" # mongodb.daws88s.online
+    fi
+
+    echo "IP Address: $IP"
+
+    aws route53 change-resource-record-sets \
+    --hosted-zone-id $ZONE_ID \
+    --change-batch '
+    {
+        "Comment": "Updating record",
+        "Changes": [
+            {
+            "Action": "UPSERT",
+            "ResourceRecordSet": {
+                "Name": "'$RECORD_NAME'",
+                "Type": "A",
+                "TTL": 1,
+                "ResourceRecords": [
+                {
+                    "Value": "'$IP'"
+                }
+                ]
+            }
+            }
+        ]
+    }
+    '
+
+    echo "record updated for $instance"
 
 done
